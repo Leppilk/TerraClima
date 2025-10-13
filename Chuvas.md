@@ -57,7 +57,33 @@ Análise da distribuição da chuva ao longo das semanas de cada mês, útil par
 
 Painel resumido com todos os indicadores principais e recordes do período analisado.
 
+<details>
+<summary>📊 Clique para expandir o painel de estatísticas</summary>
+
 ![Estatísticas Completas](output/graficos_chuva/individuais/06_estatisticas_completas.png)
+
+</details>
+
+### 📊 Resumo dos Dados Principais
+
+**📊 DADOS GERAIS**
+- Total de dias: 196
+- Dias com chuva: 31 (15,8%)
+- Dias sem chuva: 165 (84,2%)
+
+**💧 TOTAIS**
+- Chuva total: 232,0 mm
+- Média diária: 1,18 mm/dia
+- Média (dias c/ chuva): 7,48 mm
+
+**🏆 RECORDES**
+- Dia mais chuvoso: 28,8 mm
+- Data: 24/04/2025
+- Maior período chuvoso: 5 dias
+
+**🏜️ PERÍODOS SECOS**
+- Maior seca: 43 dias consecutivos
+- Período: 09/08 até 20/09
 
 <div style="page-break-after: always;"></div>
 
