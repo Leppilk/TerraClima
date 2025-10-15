@@ -28,6 +28,12 @@ STATION_CONFIG = {
     'frequencia_leitura': '10 minutos'
 }
 
+# Constantes para fácil acesso
+STATION_NAME = STATION_CONFIG['nome']
+STATION_LOCATION = STATION_CONFIG['localizacao']
+STATION_UTM = f"UTM {STATION_CONFIG['coordenadas_utm']['este']} E / {STATION_CONFIG['coordenadas_utm']['norte']} N"
+STATION_ZONE = STATION_CONFIG['coordenadas_utm']['fuso']
+
 # Mapeamento de colunas do CSV
 COLUMN_MAPPING = {
     'Data (America/Sao_Paulo)': 'data',

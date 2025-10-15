@@ -85,8 +85,8 @@ def load_data():
         df_daily = processor.aggregate_to_daily(df_raw)
         
         # Criar agregações
-        aggregator = DataAggregator(df_daily)
-        df_monthly = aggregator.aggregate_monthly()
+        aggregator = DataAggregator()
+        df_monthly = aggregator.aggregate_monthly(df_daily)
         
         return df_raw, df_daily, df_monthly
 
