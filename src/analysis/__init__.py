@@ -5,7 +5,7 @@ from .temperature import TemperatureAnalyzer
 from .humidity import HumidityAnalyzer
 from .wind import WindAnalyzer
 from .solar import SolarAnalyzer
-from .correlations import CorrelationAnalyzer
+from .correlation import CorrelationAnalyzer
 
 __all__ = [
     'RainfallAnalyzer',
