@@ -1,6 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+from matplotlib.patches import FancyBboxPatch
 from matplotlib.gridspec import GridSpec
 import numpy as np
 from datetime import datetime
@@ -119,6 +120,309 @@ def calcular_estatisticas(df):
     }
     
     return stats
+
+
+def criar_relatorio_a2_paisagem(df, stats, output_dir):
+    """
+    Cria relatório em formato A2 paisagem (594x420mm = 23.39x16.54 polegadas)
+    Layout: 2/3 da página com gráficos (2 por linha) + 1/3 com dados em caixas coloridas
+    """
+    
+    # A2 paisagem: 594mm x 420mm = 23.39" x 16.54"
+    fig = plt.figure(figsize=(23.39, 16.54))
+    
+    # Layout: 2/3 esquerda para gráficos (4 gráficos 2x2), 1/3 direita para dados
+    # GridSpec: 4 linhas x 3 colunas
+    gs = GridSpec(5, 3, figure=fig, 
+                  hspace=0.75, wspace=0.3,
+                  left=0.04, right=0.97, top=0.97, bottom=0.05,
+                  width_ratios=[1, 1, 0.7])  # 2 colunas para gráficos, 1 para dados
+    
+    # Cores das caixas de dados
+    cores_caixas = {
+        'periodo': '#E3F2FD',      # Azul claro
+        'totais': '#E8F5E9',       # Verde claro
+        'recordes': '#FFF3E0',     # Laranja claro
+        'secos': '#FCE4EC'         # Rosa claro
+    }
+    
+    # ============= GRÁFICO 1: Distribuição Mensal (topo esquerdo) =============
+    ax1 = fig.add_subplot(gs[0, 0])
+    mensal = df.groupby(['mes', 'mes_nome'])['chuva_total'].sum().reset_index()
+    mensal = mensal.sort_values('mes')
+    
+    colors = plt.cm.Blues(np.linspace(0.4, 0.9, len(mensal)))
+    bars = ax1.bar(mensal['mes_nome'], mensal['chuva_total'], 
+                   color=colors, edgecolor='navy', linewidth=1.5)
+    
+    for bar in bars:
+        height = bar.get_height()
+        ax1.text(bar.get_x() + bar.get_width()/2., height,
+                f'{height:.1f}',
+                ha='center', va='bottom', fontsize=9, fontweight='bold')
+    
+    ax1.set_xlabel('Mês', fontsize=11, fontweight='bold')
+    ax1.set_ylabel('Chuva (mm)', fontsize=11, fontweight='bold')
+    ax1.set_title('Distribuição Mensal', fontsize=13, fontweight='bold', pad=15)
+    ax1.grid(axis='y', alpha=0.3, linestyle='--')
+    
+    # ============= GRÁFICO 2: Linha do Tempo (topo direito) =============
+    ax2 = fig.add_subplot(gs[0, 1])
+    df_sorted = df.sort_values('data')
+    df_sorted['chuva_acumulada'] = df_sorted['chuva_total'].cumsum()
+    
+    ax2.plot(df_sorted['data'], df_sorted['chuva_acumulada'], 
+            color='#1f77b4', linewidth=2.5, marker='o', markersize=2)
+    ax2.fill_between(df_sorted['data'], 0, df_sorted['chuva_acumulada'], 
+                     alpha=0.3, color='#1f77b4')
+    
+    ax2.set_xlabel('Data', fontsize=11, fontweight='bold')
+    ax2.set_ylabel('Chuva Acumulada (mm)', fontsize=11, fontweight='bold')
+    ax2.set_title('Evolução Acumulada', fontsize=13, fontweight='bold', pad=15)
+    ax2.grid(True, alpha=0.3, linestyle='--')
+    
+    # Formatar eixo X com meses abreviados
+    from matplotlib.dates import DateFormatter
+    ax2.xaxis.set_major_formatter(DateFormatter('%b'))
+    plt.setp(ax2.xaxis.get_majorticklabels(), rotation=45, ha='right')
+    
+    # ============= GRÁFICO 3: Pizza de Intensidade (meio esquerdo) =============
+    ax3 = fig.add_subplot(gs[1, 0])
+    intensidade_counts = df['intensidade'].value_counts()
+    ordem_intensidade = ['Sem chuva', 'Fraca (< 5mm)', 'Moderada (5-15mm)', 
+                         'Forte (15-25mm)', 'Muito Forte (>25mm)']
+    intensidade_counts = intensidade_counts.reindex(ordem_intensidade, fill_value=0)
+    
+    colors_intensidade = ['#E8E8E8', '#A8DADC', '#457B9D', '#1D3557', '#E63946']
+    wedges, texts, autotexts = ax3.pie(intensidade_counts, 
+                                        labels=intensidade_counts.index,
+                                        autopct='%1.1f%%',
+                                        colors=colors_intensidade,
+                                        startangle=90,
+                                        textprops={'fontsize': 9, 'weight': 'bold'})
+    
+    for autotext in autotexts:
+        autotext.set_color('white')
+        autotext.set_fontsize(9)
+    
+    ax3.set_title('Distribuição por Intensidade', fontsize=13, fontweight='bold', pad=15)
+    
+    # ============= GRÁFICO 4: Top 10 Dias (meio direito) =============
+    ax4 = fig.add_subplot(gs[1, 1])
+    df_com_chuva = df[df['chuva_total'] > 0].copy()
+    top10 = df_com_chuva.nlargest(10, 'chuva_total')
+    top10['data_str'] = top10['data'].dt.strftime('%d/%m')
+    
+    cores_top10 = plt.cm.RdYlBu_r(np.linspace(0.2, 0.9, len(top10)))
+    bars = ax4.barh(range(len(top10)), top10['chuva_total'], color=cores_top10, edgecolor='black')
+    ax4.set_yticks(range(len(top10)))
+    ax4.set_yticklabels(top10['data_str'], fontsize=9)
+    
+    for i, (idx, row) in enumerate(top10.iterrows()):
+        ax4.text(row['chuva_total'] + 0.5, i, f"{row['chuva_total']:.1f}mm",
+                va='center', fontsize=8, fontweight='bold')
+    
+    ax4.set_xlabel('Chuva (mm)', fontsize=11, fontweight='bold')
+    ax4.set_title('Top 10 Dias Mais Chuvosos', fontsize=13, fontweight='bold', pad=15)
+    ax4.grid(axis='x', alpha=0.3, linestyle='--')
+    ax4.invert_yaxis()
+    
+    # ============= GRÁFICO 5: Distribuição Semanal (baixo esquerdo) =============
+    ax5 = fig.add_subplot(gs[2, 0])
+    df['semana_mes'] = ((df['dia_mes'] - 1) // 7) + 1
+    semana_stats = df.groupby('semana_mes')['chuva_total'].agg(['sum', 'count']).reset_index()
+    
+    cores_semana = ['#8ecae6', '#219ebc', '#023047', '#fb8500']
+    bars = ax5.bar(semana_stats['semana_mes'], semana_stats['sum'], 
+                  color=cores_semana, edgecolor='black', linewidth=1.5)
+    
+    for i, row in semana_stats.iterrows():
+        ax5.text(row['semana_mes'], row['sum'] + 2, 
+                f"{row['sum']:.1f}mm",
+                ha='center', va='bottom', fontsize=9, fontweight='bold')
+    
+    ax5.set_xlabel('Semana do Mês', fontsize=11, fontweight='bold')
+    ax5.set_ylabel('Chuva (mm)', fontsize=11, fontweight='bold')
+    ax5.set_title('Distribuição por Semana', fontsize=13, fontweight='bold', pad=15)
+    ax5.set_xticks([1, 2, 3, 4])
+    ax5.set_xticklabels(['1ª', '2ª', '3ª', '4ª'])
+    ax5.grid(axis='y', alpha=0.3, linestyle='--')
+    
+    # ============= GRÁFICO 6: Meses Comparativo (baixo direito) =============
+    ax6 = fig.add_subplot(gs[2, 1])
+    mensal_dias = df.groupby('mes_nome').agg({
+        'chuva_total': 'sum',
+        'data': 'count'
+    }).reindex(['Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out'], fill_value=0)
+    
+    x = np.arange(len(mensal_dias))
+    width = 0.35
+    
+    ax6_twin = ax6.twinx()
+    bars1 = ax6.bar(x - width/2, mensal_dias['chuva_total'], width, 
+                    label='Chuva (mm)', color='#4A90E2', alpha=0.8)
+    bars2 = ax6_twin.bar(x + width/2, mensal_dias['data'], width,
+                         label='Dias', color='#7CB342', alpha=0.8)
+    
+    ax6.set_xlabel('Mês', fontsize=11, fontweight='bold')
+    ax6.set_ylabel('Chuva (mm)', fontsize=11, fontweight='bold', color='#4A90E2')
+    ax6_twin.set_ylabel('Nº Dias', fontsize=11, fontweight='bold', color='#7CB342')
+    ax6.set_title('Comparativo Mensal', fontsize=13, fontweight='bold', pad=15)
+    ax6.set_xticks(x)
+    ax6.set_xticklabels(mensal_dias.index, fontsize=9)
+    ax6.tick_params(axis='y', labelcolor='#4A90E2')
+    ax6_twin.tick_params(axis='y', labelcolor='#7CB342')
+    ax6.grid(axis='y', alpha=0.3, linestyle='--')
+    
+    # ============= COLUNA DIREITA: CAIXAS DE DADOS =============
+    # Caixa 0: Localização (topo)
+    ax_info0 = fig.add_subplot(gs[0:1, 2])
+    ax_info0.axis('off')
+    ax_info0.set_xlim(0, 10)
+    ax_info0.set_ylim(0, 10)
+    
+    fancy_box0 = FancyBboxPatch((0.3, 0.3), 9.4, 9.4,
+                                boxstyle="round,pad=0.1", 
+                                facecolor='#FFF9C4',
+                                edgecolor='#F57F17', linewidth=3, zorder=0)
+    ax_info0.add_patch(fancy_box0)
+    
+    ax_info0.text(5, 8.8, '📍 LOCALIZAÇÃO', 
+                 ha='center', va='top', fontsize=12, fontweight='bold', color='#F57F17')
+    
+    local_text = """Coordenadas UTM (SIRGAS 2000):
+622279 E / 7431301 N
+Fuso: 22S
+
+Localidade: Baggio
+Município: Ribeirão Claro - PR"""
+    
+    ax_info0.text(5, 4.8, local_text,
+                 ha='center', va='center', fontsize=9,
+                 bbox=dict(boxstyle='round,pad=0.5', facecolor='white',
+                          edgecolor='#F57F17', linewidth=1.5, alpha=0.9))
+    
+    # Caixa 1: Período (linha 1, coluna 2)
+    ax_info1 = fig.add_subplot(gs[1:2, 2])
+    ax_info1.axis('off')
+    ax_info1.set_xlim(0, 10)
+    ax_info1.set_ylim(0, 10)
+    
+    fancy_box1 = FancyBboxPatch((0.3, 0.3), 9.4, 9.4,
+                                boxstyle="round,pad=0.1", 
+                                facecolor=cores_caixas['periodo'],
+                                edgecolor='#1976D2', linewidth=3, zorder=0)
+    ax_info1.add_patch(fancy_box1)
+    
+    ax_info1.text(5, 8.8, '📅 PERÍODO ANALISADO', 
+                 ha='center', va='top', fontsize=12, fontweight='bold', color='#0D47A1')
+    
+    info_text = f"""Total de dias: {stats['total_dias']}
+Período: {df['data'].min().strftime('%d/%m/%Y')} até
+         {df['data'].max().strftime('%d/%m/%Y')}
+
+Dias com chuva: {stats['dias_com_chuva']} ({stats['porcentagem_dias_chuva']:.1f}%)
+Dias sem chuva: {stats['dias_sem_chuva']} ({100-stats['porcentagem_dias_chuva']:.1f}%)"""
+    
+    ax_info1.text(5, 4.8, info_text,
+                 ha='center', va='center', fontsize=9, 
+                 bbox=dict(boxstyle='round,pad=0.5', facecolor='white', 
+                          edgecolor='#1976D2', linewidth=1.5, alpha=0.9))
+    
+    # Caixa 2: Totais (linha 2, coluna 2)
+    ax_info2 = fig.add_subplot(gs[2:3, 2])
+    ax_info2.axis('off')
+    ax_info2.set_xlim(0, 10)
+    ax_info2.set_ylim(0, 10)
+    
+    fancy_box2 = FancyBboxPatch((0.3, 0.3), 9.4, 9.4,
+                                boxstyle="round,pad=0.1",
+                                facecolor=cores_caixas['totais'],
+                                edgecolor='#388E3C', linewidth=3, zorder=0)
+    ax_info2.add_patch(fancy_box2)
+    
+    ax_info2.text(5, 8.8, '💧 TOTAIS DE CHUVA',
+                 ha='center', va='top', fontsize=12, fontweight='bold', color='#1B5E20')
+    
+    totais_text = f"""Chuva total: {stats['chuva_total']:.1f} mm
+
+Média diária: {stats['chuva_media_dia']:.2f} mm/dia
+Média (dias c/ chuva): {stats['chuva_media_dia_chuvoso']:.2f} mm
+
+Chuva máxima: {stats['chuva_maxima_dia']:.1f} mm"""
+    
+    ax_info2.text(5, 4.8, totais_text,
+                 ha='center', va='center', fontsize=9,
+                 bbox=dict(boxstyle='round,pad=0.5', facecolor='white',
+                          edgecolor='#388E3C', linewidth=1.5, alpha=0.9))
+    
+    # Caixa 3: Recordes (linha 3, coluna 2)
+    ax_info3 = fig.add_subplot(gs[3:4, 2])
+    ax_info3.axis('off')
+    ax_info3.set_xlim(0, 10)
+    ax_info3.set_ylim(0, 10)
+    
+    fancy_box3 = FancyBboxPatch((0.3, 0.3), 9.4, 9.4,
+                                boxstyle="round,pad=0.1",
+                                facecolor=cores_caixas['recordes'],
+                                edgecolor='#F57C00', linewidth=3, zorder=0)
+    ax_info3.add_patch(fancy_box3)
+    
+    ax_info3.text(5, 8.8, '🏆 RECORDES',
+                 ha='center', va='top', fontsize=12, fontweight='bold', color='#E65100')
+    
+    recordes_text = f"""Dia mais chuvoso:
+{stats['data_max_chuva'].strftime('%d/%m/%Y')} - {stats['chuva_maxima_dia']:.1f} mm
+
+Maior período chuvoso:
+{stats['periodo_chuvoso_max']} dias consecutivos
+
+Mês mais chuvoso: {stats['mes_mais_chuvoso']}
+{stats['chuva_mes_mais_chuvoso']:.1f} mm"""
+    
+    ax_info3.text(5, 4.8, recordes_text,
+                 ha='center', va='center', fontsize=9,
+                 bbox=dict(boxstyle='round,pad=0.5', facecolor='white',
+                          edgecolor='#F57C00', linewidth=1.5, alpha=0.9))
+    
+    # Caixa 4: Períodos Secos (linha 4, coluna 2)
+    ax_info4 = fig.add_subplot(gs[4:5, 2])
+    ax_info4.axis('off')
+    ax_info4.set_xlim(0, 10)
+    ax_info4.set_ylim(0, 10)
+    
+    fancy_box4 = FancyBboxPatch((0.3, 0.3), 9.4, 9.4,
+                                boxstyle="round,pad=0.1",
+                                facecolor=cores_caixas['secos'],
+                                edgecolor='#C2185B', linewidth=3, zorder=0)
+    ax_info4.add_patch(fancy_box4)
+    
+    ax_info4.text(5, 8.8, '🏜️ PERÍODOS SECOS',
+                 ha='center', va='top', fontsize=12, fontweight='bold', color='#880E4F')
+    
+    if stats['data_inicio_seca'] and stats['data_fim_seca']:
+        periodo_texto = f"{stats['data_inicio_seca'].strftime('%d/%m')} até {stats['data_fim_seca'].strftime('%d/%m/%Y')}"
+    else:
+        periodo_texto = "N/A"
+    
+    secos_text = f"""Maior período sem chuva:
+{stats['periodo_seco_max']} dias consecutivos
+
+Período: {periodo_texto}
+
+⚠️ Importante para planejamento
+de irrigação"""
+    
+    ax_info4.text(5, 4.8, secos_text,
+                 ha='center', va='center', fontsize=9,
+                 bbox=dict(boxstyle='round,pad=0.5', facecolor='white',
+                          edgecolor='#C2185B', linewidth=1.5, alpha=0.9))
+    
+    # Salvar (SEM título geral)
+    output_path = os.path.join(output_dir, 'relatorio_a2_paisagem.png')
+    plt.savefig(output_path, dpi=300, bbox_inches='tight', facecolor='white')
+    print(f"✅ Relatório A2 paisagem salvo: relatorio_a2_paisagem.png")
+    plt.close()
 
 
 def criar_relatorio_completo(df, stats, output_dir):

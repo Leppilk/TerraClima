@@ -16,7 +16,7 @@ import glob
 # Importa o gerador de relatórios
 from relatorio_chuvas import (carregar_dados, calcular_estatisticas, 
                                criar_relatorio_completo, criar_analise_mensal_detalhada,
-                               criar_graficos_individuais)
+                               criar_graficos_individuais, criar_relatorio_a2_paisagem)
 
 
 def processar_dados_chuva(pasta_dados='Dados'):
@@ -229,6 +229,10 @@ def gerar_todos_graficos(df, pasta_saida='output'):
     # Calcula estatísticas
     print("   📈 Calculando estatísticas...")
     stats = calcular_estatisticas(df)
+    
+    # Gera relatório A2 paisagem (NOVO)
+    print("   📊 Gerando relatório A2 paisagem...")
+    criar_relatorio_a2_paisagem(df, stats, pasta_graficos)
     
     # Gera relatório completo
     print("   📊 Gerando relatório completo...")
