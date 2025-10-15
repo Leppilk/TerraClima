@@ -25,9 +25,14 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# CSS customizado
+# CSS customizado para ocultar menu nativo e melhorar UI
 st.markdown("""
 <style>
+    /* Ocultar menu de navegação nativo do Streamlit */
+    [data-testid="stSidebarNav"] {
+        display: none;
+    }
+    
     .main-header {
         font-size: 2.5rem;
         font-weight: bold;

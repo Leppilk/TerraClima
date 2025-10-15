@@ -141,7 +141,7 @@ def show_rain_charts(df_daily, df_monthly):
     
     # Encontrar coluna de chuva
     chuva_col = None
-    for col in ['chuva_total', 'chuva_dia', 'precipitacao']:
+    for col in ['chuva_acumulada', 'chuva_total', 'chuva_dia', 'precipitacao']:
         if col in df_daily.columns:
             chuva_col = col
             break

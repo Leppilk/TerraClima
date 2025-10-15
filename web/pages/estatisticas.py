@@ -141,7 +141,7 @@ def show_records(df_daily):
         
         # Encontrar coluna de chuva
         chuva_col = None
-        for col in ['chuva_total', 'chuva_dia', 'precipitacao']:
+        for col in ['chuva_acumulada', 'chuva_total', 'chuva_dia', 'precipitacao']:
             if col in df_daily.columns:
                 chuva_col = col
                 break
@@ -276,7 +276,7 @@ def show_top_days(df_daily):
     
     # Dias mais chuvosos
     chuva_col = None
-    for col in ['chuva_total', 'chuva_dia', 'precipitacao']:
+    for col in ['chuva_acumulada', 'chuva_total', 'chuva_dia', 'precipitacao']:
         if col in df_daily.columns:
             chuva_col = col
             break

@@ -91,7 +91,10 @@ class DataProcessor:
         colunas_novas = []
         for col in df_diario.columns:
             if isinstance(col, tuple):
-                if col[1] == 'max':
+                # Tratamento especial para chuva - manter nome simples
+                if col[0] == 'chuva_acumulada' and col[1] == 'max':
+                    colunas_novas.append('chuva_acumulada')
+                elif col[1] == 'max':
                     colunas_novas.append(f'{col[0]}_max')
                 elif col[1] == 'min':
                     colunas_novas.append(f'{col[0]}_min')

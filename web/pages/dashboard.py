@@ -65,7 +65,7 @@ def show_main_kpis(df_daily):
         # Chuva acumulada últimos 7 dias
         last_7_days = df_daily.tail(7)
         chuva_col = None
-        for col in ['chuva_total', 'chuva_dia', 'precipitacao']:
+        for col in ['chuva_acumulada', 'chuva_total', 'chuva_dia', 'precipitacao']:
             if col in last_7_days.columns:
                 chuva_col = col
                 break
@@ -191,7 +191,7 @@ def show_trend_charts(df_daily):
     with tab3:
         # Encontrar coluna de chuva
         chuva_col = None
-        for col in ['chuva_total', 'chuva_dia', 'precipitacao']:
+        for col in ['chuva_acumulada', 'chuva_total', 'chuva_dia', 'precipitacao']:
             if col in df_recent.columns:
                 chuva_col = col
                 break
