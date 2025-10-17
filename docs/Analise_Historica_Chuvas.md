@@ -263,7 +263,62 @@ Este precioso arquivo histórico só existe graças ao **Sr. Luiz**, que durante
 
 ---
 
-## 📌 Acesso ao Sistema
+## � Galeria de Gráficos
+
+### Relatórios Completos
+
+#### Análise Mensal Detalhada
+Visão completa da distribuição de precipitação mês a mês ao longo dos 31 anos.
+
+![Análise Mensal Detalhada](../output/graficos_chuva/analise_mensal_detalhada.png)
+
+#### Relatório Completo de Chuvas
+Compilação de todos os principais indicadores e visualizações em um único painel.
+
+![Relatório Completo de Chuvas](../output/graficos_chuva/relatorio_completo_chuvas.png)
+
+#### Relatório A2 Paisagem
+Versão otimizada para impressão em formato A2 paisagem.
+
+![Relatório A2 Paisagem](../output/graficos_chuva/relatorio_a2_paisagem.png)
+
+---
+
+### Gráficos Individuais
+
+#### 1. Distribuição Mensal
+Distribuição da precipitação ao longo dos meses, mostrando padrões sazonais.
+
+![Distribuição Mensal](../output/graficos_chuva/individuais/01_distribuicao_mensal.png)
+
+#### 2. Chuva Acumulada
+Evolução da precipitação acumulada ao longo do período de 31 anos.
+
+![Chuva Acumulada](../output/graficos_chuva/individuais/02_chuva_acumulada.png)
+
+#### 3. Distribuição de Intensidade
+Frequência de diferentes intensidades de precipitação mensal.
+
+![Distribuição de Intensidade](../output/graficos_chuva/individuais/03_distribuicao_intensidade.png)
+
+#### 4. Top 10 Dias Mais Chuvosos
+Ranking dos 10 dias com maior precipitação registrada no período.
+
+![Top 10 Dias](../output/graficos_chuva/individuais/04_top10_dias.png)
+
+#### 5. Distribuição Semanal
+Padrão de distribuição da precipitação ao longo das semanas do ano.
+
+![Distribuição Semanal](../output/graficos_chuva/individuais/05_distribuicao_semanal.png)
+
+#### 6. Estatísticas Completas
+Painel com estatísticas descritivas completas dos dados de precipitação.
+
+![Estatísticas Completas](../output/graficos_chuva/individuais/06_estatisticas_completas.png)
+
+---
+
+## �📌 Acesso ao Sistema
 
 Para visualizar os gráficos interativos e explorar os dados em detalhes, acesse o sistema **TerraClima** e navegue até a página **"Chuva Histórica"**.
 
