@@ -58,6 +58,12 @@ st.markdown("""
         padding: 1rem;
         border-radius: 0.5rem;
         margin: 1rem 0;
+        color: #155724;
+        font-weight: 500;
+    }
+    .alert-success h3, .alert-success h4 {
+        color: #0d4019;
+        font-weight: bold;
     }
     .alert-warning {
         background-color: #fff3cd;
@@ -65,6 +71,12 @@ st.markdown("""
         padding: 1rem;
         border-radius: 0.5rem;
         margin: 1rem 0;
+        color: #856404;
+        font-weight: 500;
+    }
+    .alert-warning h3, .alert-warning h4 {
+        color: #533f03;
+        font-weight: bold;
     }
     .alert-danger {
         background-color: #f8d7da;
@@ -72,6 +84,12 @@ st.markdown("""
         padding: 1rem;
         border-radius: 0.5rem;
         margin: 1rem 0;
+        color: #721c24;
+        font-weight: 500;
+    }
+    .alert-danger h3, .alert-danger h4 {
+        color: #491217;
+        font-weight: bold;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -123,7 +141,7 @@ def show_sidebar():
         st.markdown("### 📊 Navegação")
         page = st.radio(
             "Selecione a página:",
-            ["🏠 Dashboard", "📈 Gráficos", "📊 Estatísticas", "🔗 Correlações"],
+            ["🏠 Dashboard", "📈 Gráficos", "🌧️ Chuva Histórica"],
             label_visibility="collapsed"
         )
         
@@ -197,20 +215,14 @@ def main():
     elif page == "📈 Gráficos":
         from pages import graficos
         graficos.show(
+            st.session_state.df_raw,
             st.session_state.df_daily,
             st.session_state.df_monthly
         )
     
-    elif page == "📊 Estatísticas":
-        from pages import estatisticas
-        estatisticas.show(
-            st.session_state.df_daily,
-            st.session_state.df_monthly
-        )
-    
-    elif page == "🔗 Correlações":
-        from pages import correlacoes
-        correlacoes.show(st.session_state.df_daily)
+    elif page == "🌧️ Chuva Histórica":
+        from pages import chuva
+        chuva.show()
 
 
 if __name__ == "__main__":

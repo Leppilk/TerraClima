@@ -72,7 +72,7 @@ def show_main_kpis(df_daily):
         
         if chuva_col:
             chuva_7d = last_7_days[chuva_col].sum()
-            chuva_formatted = Formatters.format_rain(chuva_7d)
+            chuva_formatted = Formatters.format_rainfall(chuva_7d)
         else:
             chuva_formatted = "N/A"
         
